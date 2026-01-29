@@ -29,6 +29,7 @@ export default function AdminDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const checkAuth = useCallback(async () => {
     try {
@@ -46,12 +47,18 @@ export default function AdminDashboard() {
   const fetchProjects = useCallback(async () => {
     try {
       const res = await fetch("/api/projects");
-      if (res.ok) {
-        const data = await res.json();
-        setProjects(data);
+      const data = await res.json();
+      const safe = Array.isArray(data) ? data : [];
+      setProjects(safe);
+      if (!res.ok) {
+        setError("Impossible de charger les projets.");
+      } else {
+        setError(null);
       }
     } catch (error) {
       console.error("Erreur:", error);
+      setProjects([]);
+      setError("Impossible de charger les projets.");
     } finally {
       setLoading(false);
     }
@@ -204,6 +211,12 @@ export default function AdminDashboard() {
               Liste des Projets
             </h2>
           </div>
+
+          {error && (
+            <div className="p-6 bg-red-50 text-red-800 border-b">
+              {error}
+            </div>
+          )}
 
           {projects.length === 0 ? (
             <div className="p-12 text-center text-gray-600">

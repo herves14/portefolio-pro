@@ -20,10 +20,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(projects);
   } catch (error) {
     console.error("Erreur lors de la récupération des projets:", error);
-    return NextResponse.json(
-      { error: "Erreur serveur" },
-      { status: 500 }
-    );
+    // IMPORTANT: toujours retourner un tableau pour éviter les crashes `.map is not a function`
+    return NextResponse.json([], { status: 500 });
   }
 }
 

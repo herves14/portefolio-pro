@@ -22,6 +22,7 @@ const Portfolio = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProjects();
@@ -31,9 +32,15 @@ const Portfolio = () => {
     try {
       const res = await fetch("/api/projects?status=published");
       const data = await res.json();
-      setProjects(data);
+      const safe = Array.isArray(data) ? data : [];
+      setProjects(safe);
+      if (!res.ok) {
+        setError("Impossible de charger les projets pour le moment.");
+      }
     } catch (error) {
       console.error("Erreur lors du chargement des projets:", error);
+      setProjects([]);
+      setError("Impossible de charger les projets pour le moment.");
     } finally {
       setLoading(false);
     }
@@ -93,6 +100,10 @@ const Portfolio = () => {
           {loading ? (
             <div className="text-center py-20">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-red-600 text-lg">{error}</p>
             </div>
           ) : projects.length === 0 ? (
             <div className="text-center py-20">
