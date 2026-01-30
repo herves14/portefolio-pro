@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
-import { FaArrowLeft, FaUpload } from "react-icons/fa";
-import Image from "next/image";
+import { FaArrowLeft } from "react-icons/fa";
+import ImageUploader from "@/components/admin/ImageUploader";
 
 const projectSchema = z.object({
   title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
@@ -34,7 +34,6 @@ export default function EditProject() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState<string[]>([]);
-  const [uploading, setUploading] = useState(false);
 
   const {
     register,
@@ -75,37 +74,6 @@ export default function EditProject() {
   useEffect(() => {
     fetchProject();
   }, [fetchProject]);
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setUploading(true);
-    const formData = new FormData();
-    Array.from(files).forEach((file) => {
-      formData.append("images", file);
-    });
-
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setImages([...images, ...data.urls]);
-      }
-    } catch (error) {
-      console.error("Erreur upload:", error);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
 
   const onSubmit = async (data: ProjectFormData) => {
     setIsSubmitting(true);
@@ -271,55 +239,12 @@ export default function EditProject() {
               />
             </div>
 
-            {/* Upload d'images */}
+            {/* Images du projet */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Images du projet
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  id="image-upload"
-                />
-                <label
-                  htmlFor="image-upload"
-                  className="cursor-pointer flex flex-col items-center justify-center"
-                >
-                  <FaUpload className="text-4xl text-gray-400 mb-2" />
-                  <span className="text-gray-600">
-                    {uploading
-                      ? "Upload en cours..."
-                      : "Cliquez pour ajouter des images"}
-                  </span>
-                </label>
-              </div>
-
-              {images.length > 0 && (
-                <div className="grid grid-cols-3 gap-4 mt-4">
-                  {images.map((url, index) => (
-                    <div key={index} className="relative group">
-                      <Image
-                        src={url}
-                        alt={`Image ${index + 1}`}
-                        width={400}
-                        height={200}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <ImageUploader images={images} onChange={setImages} />
             </div>
 
             {/* Statut */}

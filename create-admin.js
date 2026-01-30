@@ -7,7 +7,7 @@ async function createAdmin() {
   try {
     // CHANGEZ CES VALEURS !
     const email = 'adebiyiherves14@gmail.com';  // ← Votre email
-    const password = 'adebiyiherve2002';   // ← Votre mot de passe
+    const password = 'adebiyi@2002';   // ← Votre mot de passe
     
     // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);

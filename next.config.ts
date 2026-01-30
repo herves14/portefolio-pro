@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
         hostname: "**",
       },
     ],
-    domains: ["localhost"],
+    domains: ["localhost", "res.cloudinary.com"],
   },
   experimental: {
     serverActions: {
